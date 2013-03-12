@@ -1,6 +1,6 @@
 package TPath::Forester::Ref::Expression;
 {
-  $TPath::Forester::Ref::Expression::VERSION = '0.001';
+  $TPath::Forester::Ref::Expression::VERSION = '0.002';
 }
 
 # ABSTRACT: expression that converts a ref into a L<TPath::Forester::Ref::Root> before walking it
@@ -8,21 +8,14 @@ package TPath::Forester::Ref::Expression;
 
 use Moose;
 use namespace::autoclean;
-use TPath::Forester::Ref::Node;
-use Scalar::Util qw(blessed);
 
 extends 'TPath::Expression';
-
-sub select {
-    my ( $self, $node ) = @_;
-    $node = wrap($node)
-      unless blessed($node) && $node->isa('TPath::Forester::Ref::Node');
-    $self->SUPER::select($node);
-}
 
 
 sub dsel {
     my ( $self, $node ) = @_;
+    my @selection = $self->select($node);
+    return $selection[0] unless wantarray;
     map { $_->value } $self->select($node);
 }
 
@@ -40,21 +33,21 @@ TPath::Forester::Ref::Expression - expression that converts a ref into a L<TPath
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 DESCRIPTION
 
-A L<TPath::Expression> that will automatically convert plain references like
-C<{ foo => [ 'a', 'b', 'c' ], bar => 1 }> into a L<TPath::Forester::Ref::Node>
-tree. These expressions can also be used on C<TPath::Forester::Ref::Node> trees
-directly.
+A L<TPath::Expression> that provides the C<dsel> method.
 
 =head1 METHODS
 
 =head2 dsel
 
-Returns the values selected by the path as opposed to the nodes containing
-them.
+"De-references" the values selected by the path, extracting them from the
+L<TPath::Forester::Ref::Node> objects that hold them.
+
+In an array context C<dsel> returns all selections. Otherwise, it returns
+the first node selected.
 
 =head1 AUTHOR
 

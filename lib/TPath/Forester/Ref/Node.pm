@@ -1,6 +1,6 @@
 package TPath::Forester::Ref::Node;
 {
-  $TPath::Forester::Ref::Node::VERSION = '0.001';
+  $TPath::Forester::Ref::Node::VERSION = '0.002';
 }
 
 # ABSTRACT: a node that represents a node in a plain struct
@@ -8,13 +8,9 @@ package TPath::Forester::Ref::Node;
 
 use v5.10;
 use Moose;
-use Moose::Exporter;
-use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Scalar::Util qw(blessed looks_like_number);
 use TPath::Forester::Ref::Root;
-
-Moose::Exporter->setup_import_methods( as_is => [ 'wrap', \&wrap ], );
 
 
 has value => ( is => 'ro', required => 1 );
@@ -81,38 +77,6 @@ sub _is_leaf_builder {
     return @{ $self->children } && 1;
 }
 
-
-sub wrap {
-    my ( $ref, $root, $tag ) = @_;
-    my $node;
-    if ($root) {
-        $node = TPath::Forester::Ref::Node->new(
-            value => $ref,
-            _root => $root,
-            tag   => $tag,
-        );
-    }
-    else {
-        $root = TPath::Forester::Ref::Node->new( value => $ref, tag => undef );
-        apply_all_roles( $root, 'TPath::Forester::Ref::Root' );
-        $root->_add_root($root);
-        $node = $root;
-    }
-    $root->_cycle_check($node);
-    return $node if $node->is_repeated;
-    for ( $node->type ) {
-        when ('hash') {
-            for my $key ( sort keys %$ref ) {
-                push @{ $node->children }, wrap( $ref->{$key}, $root, $key );
-            }
-        }
-        when ('array') {
-            push @{ $node->children }, wrap( $_, $root ) for @$ref;
-        }
-    }
-    return $node;
-}
-
 sub _type_builder {
     my $self  = shift;
     my $value = $self->value;
@@ -144,7 +108,7 @@ TPath::Forester::Ref::Node - a node that represents a node in a plain struct
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 DESCRIPTION
 
@@ -227,16 +191,6 @@ Whether this is a leaf node.
 
 If this is a non-initial repeated reference, it is considered a leaf
 only if the initial reference is a leaf.
-
-=head1 METHODS
-
-=head2 wrap
-
-Class method. Takes a reference and converts it into a tree.
-
-  my $tree = TPath::Forester::Ref::Node->wrap(
-      { foo => bar, baz => [qw(1 2 3 4)], qux => { quux => { corge => undef } } }
-  );
 
 =head1 AUTHOR
 

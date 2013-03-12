@@ -1,9 +1,9 @@
 
 
 This archive contains the distribution TPath-Forester-Ref,
-version 0.001:
+version 0.002:
 
-  TPath::Forester that understands Perl structs
+  L<TPath::Forester> that understands Perl structs
 
 This software is copyright (c) 2013 by David F. Houghton.
 

@@ -9,15 +9,14 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "TPath::Forester that understands Perl structs",
+  "ABSTRACT" => "L<TPath::Forester> that understands Perl structs",
   "AUTHOR" => "David F. Houghton <dfhoughton\@gmail.com>",
   "BUILD_REQUIRES" => {
     "File::Find" => 0,
     "File::Temp" => 0,
     "List::MoreUtils" => 0,
     "Test::More" => "0.88",
-    "strict" => 0,
-    "warnings" => 0
+    "strict" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
@@ -33,11 +32,13 @@ my %WriteMakefileArgs = (
     "Moose::Util" => 0,
     "MooseX::MethodAttributes" => 0,
     "Scalar::Util" => 0,
+    "TPath" => "0.006",
     "TPath::Expression" => 0,
     "TPath::Forester" => 0,
-    "namespace::autoclean" => 0
+    "namespace::autoclean" => 0,
+    "warnings" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => "t/*.t"
   }

@@ -1,4 +1,8 @@
 Revision history for TPath::Forester::Ref
 
+0.002     2013-03-12 00:18:36 EST5EDT
+  * made dsel sensitive to array context
+  * refactored to use new TPath API
+
 0.001     2013-03-10 20:40:41 EST5EDT
   * first release

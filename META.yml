@@ -1,5 +1,5 @@
 ---
-abstract: 'TPath::Forester that understands Perl structs'
+abstract: 'L<TPath::Forester> that understands Perl structs'
 author:
   - 'David F. Houghton <dfhoughton@gmail.com>'
 build_requires:
@@ -8,7 +8,6 @@ build_requires:
   List::MoreUtils: 0
   Test::More: 0.88
   strict: 0
-  warnings: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
@@ -26,8 +25,10 @@ requires:
   Moose::Util: 0
   MooseX::MethodAttributes: 0
   Scalar::Util: 0
+  TPath: 0.006
   TPath::Expression: 0
   TPath::Forester: 0
   namespace::autoclean: 0
   perl: v5.10.0
-version: 0.001
+  warnings: 0
+version: 0.002

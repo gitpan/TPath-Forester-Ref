@@ -1,41 +1,31 @@
 package TPath::Forester::Ref;
 {
-  $TPath::Forester::Ref::VERSION = '0.001';
+  $TPath::Forester::Ref::VERSION = '0.002';
 }
 
-# ABSTRACT: TPath::Forester that understands Perl structs
+# ABSTRACT: L<TPath::Forester> that understands Perl structs
 
 
 use v5.10;
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use Moose::Exporter;
 use MooseX::MethodAttributes;
 use namespace::autoclean;
 use TPath::Forester::Ref::Node;
 use TPath::Forester::Ref::Expression;
 
-Moose::Exporter->setup_import_methods(
-    as_is => [ rtree => \&rtree, tfr => \&tfr ], );
+Moose::Exporter->setup_import_methods( as_is => [ tfr => \&tfr ], );
 
 
-with 'TPath::Forester';
-
-around path => sub {
-    my ( $orig, $self, $expr ) = @_;
-    my $path = $self->$orig($expr);
-    bless $path, 'TPath::Forester::Ref::Expression';
-};
+with 'TPath::Forester' => { -excludes => 'wrap' };
 
 sub children {
     my ( $self, $n ) = @_;
     @{ $n->children };
 }
 
-sub has_tag {
-    my ( $self, $n, $tag ) = @_;
-    return 0 unless defined $n->tag;
-    $n->tag eq $tag;
-}
+sub tag { $_[1]->tag }
 
 sub matches_tag {
     my ( $self, $n, $re ) = @_;
@@ -82,7 +72,7 @@ sub obj_isa : Attr(isa) {
 }
 
 
-sub key : Attr { my ( $self, $n ) = @_; $n->tag; }
+sub key : Attr { $_[1]->tag }
 
 
 sub num : Attr { my ( $self, $n ) = @_; $n->type eq 'num' ? 1 : undef; }
@@ -122,8 +112,51 @@ sub is_undef :
   Attr(undef) { my ( $self, $n ) = @_; $n->type eq 'undef' ? 1 : undef; }
 
 
-sub rtree {
-    wrap(@_);
+{
+    no warnings 'redefine';
+
+    sub wrap {
+        my ( $self, $n ) = @_;
+        return $n if blessed($n) && $n->isa('TPath::Forester::Ref::Node');
+        coerce($n);
+    }
+}
+
+around path => sub {
+    my ( $orig, $self, $expr ) = @_;
+    my $path = $self->$orig($expr);
+    bless $path, 'TPath::Forester::Ref::Expression';
+};
+
+sub coerce {
+    my ( $ref, $root, $tag ) = @_;
+    my $node;
+    if ($root) {
+        $node = TPath::Forester::Ref::Node->new(
+            value => $ref,
+            _root => $root,
+            tag   => $tag,
+        );
+    }
+    else {
+        $root = TPath::Forester::Ref::Node->new( value => $ref, tag => undef );
+        apply_all_roles( $root, 'TPath::Forester::Ref::Root' );
+        $root->_add_root($root);
+        $node = $root;
+    }
+    $root->_cycle_check($node);
+    return $node if $node->is_repeated;
+    for ( $node->type ) {
+        when ('hash') {
+            for my $key ( sort keys %$ref ) {
+                push @{ $node->children }, coerce( $ref->{$key}, $root, $key );
+            }
+        }
+        when ('array') {
+            push @{ $node->children }, coerce( $_, $root ) for @$ref;
+        }
+    }
+    return $node;
 }
 
 
@@ -139,11 +172,11 @@ __END__
 
 =head1 NAME
 
-TPath::Forester::Ref - TPath::Forester that understands Perl structs
+TPath::Forester::Ref - L<TPath::Forester> that understands Perl structs
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 
@@ -163,7 +196,7 @@ version 0.001
   print scalar @hashes, "\n"; # 3
   my @arrays = tfr->path(q{//@array})->dsel($ref);
   print scalar @arrays, "\n"; # 3
-  print Dumper $arrays[2];
+  print Dumper $arrays[2];    # hash keys are sorted alphabetically
   # $VAR1 = [
   #           {
   #             'l' => 3,
@@ -258,13 +291,19 @@ Attribute that is defined for any node holding the C<undef> value.
 
 =head1 FUNCTIONS
 
-=head2 rtree
+=head2 wrap
 
-Takes a reference and converts it into a tree.
+Takes a reference and converts it into a tree, overriding L<TPath::Forester>'s no-op C<wrap>
+method.
 
   my $tree = TPath::Forester::Ref::Node->wrap(
       { foo => bar, baz => [qw(1 2 3 4)], qux => { quux => { corge => undef } } }
   );
+
+This is useful if you are going to be doing multiple selections from a single
+struct and want to use a common index. If you B<don't> use C<rtree> to work off
+a common object your index will give strange results as it won't be able to
+find the parents of your nodes.
 
 =head2 tfr
 

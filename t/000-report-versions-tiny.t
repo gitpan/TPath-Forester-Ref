@@ -58,6 +58,7 @@ eval { $v .= pmver('Moose::Role','any version') };
 eval { $v .= pmver('Moose::Util','any version') };
 eval { $v .= pmver('MooseX::MethodAttributes','any version') };
 eval { $v .= pmver('Scalar::Util','any version') };
+eval { $v .= pmver('TPath','0.006') };
 eval { $v .= pmver('TPath::Expression','any version') };
 eval { $v .= pmver('TPath::Forester','any version') };
 eval { $v .= pmver('Test::More','0.88') };

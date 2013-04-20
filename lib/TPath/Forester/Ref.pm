@@ -1,6 +1,6 @@
 package TPath::Forester::Ref;
 {
-  $TPath::Forester::Ref::VERSION = '0.002';
+  $TPath::Forester::Ref::VERSION = '0.003';
 }
 
 # ABSTRACT: L<TPath::Forester> that understands Perl structs
@@ -20,96 +20,82 @@ Moose::Exporter->setup_import_methods( as_is => [ tfr => \&tfr ], );
 
 with 'TPath::Forester' => { -excludes => 'wrap' };
 
-sub children {
-    my ( $self, $n ) = @_;
-    @{ $n->children };
-}
+sub children { @{ $_[1]->children } }
 
 sub tag { $_[1]->tag }
 
-sub matches_tag {
-    my ( $self, $n, $re ) = @_;
-    return 0 unless defined $n->tag;
-    $n->tag =~ $re;
-}
 
-
-sub array : Attr { my ( $self, $n ) = @_; $n->type eq 'array' ? 1 : undef; }
+sub array : Attr { $_[1]->n->type eq 'array' ? 1 : undef; }
 
 
 sub obj_can : Attr(can) {
-    my ( $self, $n, undef, undef, $method ) = @_;
-    $n->type eq 'object' && $n->value->can($method) ? 1 : undef;
+    my ( undef, $ctx, $method ) = @_;
+    $ctx->n->type eq 'object' && $ctx->n->value->can($method) ? 1 : undef;
 }
 
 
-sub code : Attr { my ( $self, $n ) = @_; $n->type eq 'code' ? 1 : undef; }
+sub code : Attr { $_[1]->n->type eq 'code' ? 1 : undef }
 
 
-sub obj_defined :
-  Attr(defined) { my ( $self, $n ) = @_; defined $n->value ? 1 : undef; }
+sub obj_defined : Attr(defined) { defined $_[1]->n->value ? 1 : undef }
 
 
 sub obj_does : Attr(does) {
-    my ( $self, $n, undef, undef, $role ) = @_;
-    $n->type eq 'object' && $n->value->does($role) ? 1 : undef;
+    my ( undef, $ctx, $role ) = @_;
+    $ctx->n->type eq 'object' && $ctx->n->value->does($role) ? 1 : undef;
 }
 
 
-sub glob : Attr { my ( $self, $n ) = @_; $n->type eq 'glob' ? 1 : undef; }
+sub glob : Attr { $_[1]->n->type eq 'glob' ? 1 : undef }
 
 
-sub hash : Attr { my ( $self, $n ) = @_; $n->type eq 'hash' ? 1 : undef; }
+sub hash : Attr { $_[1]->n->type eq 'hash' ? 1 : undef }
 
 
 sub obj_isa : Attr(isa) {
-    my ( $self, $n, undef, undef, @classes ) = @_;
-    return undef unless $n->type eq 'object';
+    my ( undef, $ctx, @classes ) = @_;
+    return undef unless $ctx->n->type eq 'object';
     for my $class (@classes) {
-        return 1 if $n->value->isa($class);
+        return 1 if $ctx->n->value->isa($class);
     }
     undef;
 }
 
 
-sub key : Attr { $_[1]->tag }
+sub key : Attr { $_[1]->n->tag }
 
 
-sub num : Attr { my ( $self, $n ) = @_; $n->type eq 'num' ? 1 : undef; }
+sub num : Attr { $_[1]->n->type eq 'num' ? 1 : undef }
 
 
-sub obj : Attr { my ( $self, $n ) = @_; $n->type eq 'object' ? 1 : undef; }
+sub obj : Attr { $_[1]->n->type eq 'object' ? 1 : undef }
 
 
-sub is_ref : Attr(ref) { my ( $self, $n ) = @_; $n->is_ref ? 1 : undef; }
+sub is_ref : Attr(ref) { $_[1]->n->is_ref ? 1 : undef }
 
 
-sub is_non_ref :
-  Attr(non-ref) { my ( $self, $n ) = @_; $n->is_ref ? undef : 1; }
+sub is_non_ref : Attr(non-ref) { $_[1]->n->is_ref ? undef : 1 }
 
 
 sub repeat : Attr {
-    my ( $self, $n, undef, undef, $index ) = @_;
-    my $reps = $n->is_repeated;
+    my ( undef, $ctx, $index ) = @_;
+    my $reps = $ctx->n->is_repeated;
     return undef unless defined $reps;
     return $reps ? 1 : undef unless defined $index;
-    $n->is_repeated == $index ? 1 : undef;
+    $ctx->n->is_repeated == $index ? 1 : undef;
 }
 
 
-sub repeated :
-  Attr { my ( $self, $n ) = @_; defined $n->is_repeated ? 1 : undef; }
+sub repeated : Attr { defined $_[1]->n->is_repeated ? 1 : undef }
 
 
-sub is_scalar :
-  Attr(scalar) { my ( $self, $n ) = @_; $n->type eq 'scalar' ? 1 : undef; }
+sub is_scalar : Attr(scalar) { $_[1]->n->type eq 'scalar' ? 1 : undef }
 
 
-sub str : Attr { my ( $self, $n ) = @_; $n->type eq 'string' ? 1 : undef; }
+sub str : Attr { $_[1]->n->type eq 'string' ? 1 : undef }
 
 
-sub is_undef :
-  Attr(undef) { my ( $self, $n ) = @_; $n->type eq 'undef' ? 1 : undef; }
+sub is_undef : Attr(undef) { $_[1]->n->type eq 'undef' ? 1 : undef }
 
 
 {
@@ -176,7 +162,7 @@ TPath::Forester::Ref - L<TPath::Forester> that understands Perl structs
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
@@ -289,21 +275,21 @@ Attribute that is defined for any node holding a string.
 
 Attribute that is defined for any node holding the C<undef> value.
 
-=head1 FUNCTIONS
-
 =head2 wrap
 
 Takes a reference and converts it into a tree, overriding L<TPath::Forester>'s no-op C<wrap>
 method.
 
-  my $tree = TPath::Forester::Ref::Node->wrap(
+  my $tree = tfr->wrap(
       { foo => bar, baz => [qw(1 2 3 4)], qux => { quux => { corge => undef } } }
   );
 
 This is useful if you are going to be doing multiple selections from a single
-struct and want to use a common index. If you B<don't> use C<rtree> to work off
+struct and want to use a common index. If you B<don't> use C<wrap> to work off
 a common object your index will give strange results as it won't be able to
 find the parents of your nodes.
+
+=head1 FUNCTIONS
 
 =head2 tfr
 

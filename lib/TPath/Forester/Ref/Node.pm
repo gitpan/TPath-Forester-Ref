@@ -1,6 +1,6 @@
 package TPath::Forester::Ref::Node;
 {
-  $TPath::Forester::Ref::Node::VERSION = '0.002';
+  $TPath::Forester::Ref::Node::VERSION = '0.003';
 }
 
 # ABSTRACT: a node that represents a node in a plain struct
@@ -9,7 +9,7 @@ package TPath::Forester::Ref::Node;
 use v5.10;
 use Moose;
 use namespace::autoclean;
-use Scalar::Util qw(blessed looks_like_number);
+use Scalar::Util qw(looks_like_number);
 use TPath::Forester::Ref::Root;
 
 
@@ -108,7 +108,7 @@ TPath::Forester::Ref::Node - a node that represents a node in a plain struct
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 

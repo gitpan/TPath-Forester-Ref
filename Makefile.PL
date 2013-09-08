@@ -11,13 +11,7 @@ use ExtUtils::MakeMaker 6.30;
 my %WriteMakefileArgs = (
   "ABSTRACT" => "L<TPath::Forester> that understands Perl structs",
   "AUTHOR" => "David F. Houghton <dfhoughton\@gmail.com>",
-  "BUILD_REQUIRES" => {
-    "File::Find" => 0,
-    "File::Temp" => 0,
-    "List::MoreUtils" => 0,
-    "Test::More" => "0.88",
-    "strict" => 0
-  },
+  "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
@@ -32,18 +26,39 @@ my %WriteMakefileArgs = (
     "Moose::Util" => 0,
     "MooseX::MethodAttributes" => 0,
     "Scalar::Util" => 0,
-    "TPath" => "0.006",
+    "TPath" => "1.000",
     "TPath::Expression" => 0,
     "TPath::Forester" => 0,
     "namespace::autoclean" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.003",
+  "TEST_REQUIRES" => {
+    "File::Spec" => 0,
+    "IO::Handle" => 0,
+    "IPC::Open3" => 0,
+    "List::MoreUtils" => 0,
+    "Test::More" => "0.88",
+    "strict" => 0
+  },
+  "VERSION" => "0.004",
   "test" => {
     "TESTS" => "t/*.t"
   }
 );
 
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
+  my $tr = delete $WriteMakefileArgs{TEST_REQUIRES};
+  my $br = $WriteMakefileArgs{BUILD_REQUIRES};
+  for my $mod ( keys %$tr ) {
+    if ( exists $br->{$mod} ) {
+      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
+    }
+    else {
+      $br->{$mod} = $tr->{$mod};
+    }
+  }
+}
 
 unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
   my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};

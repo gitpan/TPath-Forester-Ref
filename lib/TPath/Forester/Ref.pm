@@ -1,6 +1,6 @@
 package TPath::Forester::Ref;
 {
-  $TPath::Forester::Ref::VERSION = '0.003';
+  $TPath::Forester::Ref::VERSION = '0.004';
 }
 
 # ABSTRACT: L<TPath::Forester> that understands Perl structs
@@ -114,6 +114,7 @@ around path => sub {
     bless $path, 'TPath::Forester::Ref::Expression';
 };
 
+# acquaints all the nodes in a tree with their root
 sub coerce {
     my ( $ref, $root, $tag ) = @_;
     my $node;
@@ -162,7 +163,7 @@ TPath::Forester::Ref - L<TPath::Forester> that understands Perl structs
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 

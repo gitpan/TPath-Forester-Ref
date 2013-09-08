@@ -1,6 +1,6 @@
 package TPath::Forester::Ref::Expression;
 {
-  $TPath::Forester::Ref::Expression::VERSION = '0.003';
+  $TPath::Forester::Ref::Expression::VERSION = '0.004';
 }
 
 # ABSTRACT: expression that converts a ref into a L<TPath::Forester::Ref::Root> before walking it
@@ -33,7 +33,7 @@ TPath::Forester::Ref::Expression - expression that converts a ref into a L<TPath
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 DESCRIPTION
 

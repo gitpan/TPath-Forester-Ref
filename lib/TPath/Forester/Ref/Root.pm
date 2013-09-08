@@ -1,6 +1,6 @@
 package TPath::Forester::Ref::Root;
 {
-  $TPath::Forester::Ref::Root::VERSION = '0.003';
+  $TPath::Forester::Ref::Root::VERSION = '0.004';
 }
 
 # ABSTRACT: additional behavior for the root node of a struct tree
@@ -45,7 +45,7 @@ TPath::Forester::Ref::Root - additional behavior for the root node of a struct t
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 DESCRIPTION
 
